@@ -8,7 +8,7 @@ export default function Home() {
   const [recent, setRecent] = useState<Product[]>([])
 
   useEffect(() => {
-    getRecentProducts(4).then(setRecent).catch(() => {})
+    getRecentProducts(4).then(setRecent).catch((err) => console.error('Home:', err))
   }, [])
 
   return (

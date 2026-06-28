@@ -12,7 +12,7 @@ export default function Models() {
   const [availability, setAvailability] = useState<Availability | ''>('')
 
   useEffect(() => {
-    getProducts().then(setProducts).catch(() => {})
+    getProducts().then(setProducts).catch((err) => console.error('Models:', err))
   }, [])
 
   const filtered = products.filter((p) => {
