@@ -1,0 +1,60 @@
+/* ========================================
+   Hero Section (Home Page)
+   ======================================== */
+
+.hero-section {
+  position: relative;
+  height: 70vh;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: url('https://images.unsplash.com/photo-1598532163257-ae3c6b2524b6?w=1600&q=80') center/cover no-repeat;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  animation: heroZoom 2s ease-out both;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2));
+}
+
+.hero-content {
+  position: relative;
+  color: var(--white);
+  animation: fadeUp 0.6s ease 0.3s both;
+}
+
+.hero-content h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.hero-content p {
+  font-size: var(--fs-body);
+  opacity: 0.9;
+  margin-bottom: 32px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-content .btn {
+  font-size: var(--fs-body);
+  padding: 16px 40px;
+}
+
+.hero-content .btn::after {
+  content: '→';
+  display: inline-block;
+  transition: transform var(--transition);
+}
+
+.hero-content .btn:hover::after {
+  animation: arrowSlide 0.6s ease infinite;
+}

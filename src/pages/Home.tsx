@@ -4,6 +4,7 @@ import ProductCard from '../components/ProductCard'
 import { getRecentProducts } from '../firebase/services'
 import type { Product } from '../types'
 
+/** Landing page — hero banner + recently added products */
 export default function Home() {
   const [recent, setRecent] = useState<Product[]>([])
 
@@ -13,6 +14,7 @@ export default function Home() {
 
   return (
     <>
+      {/* ---- Hero ---- */}
       <section className="hero-section">
         <div className="hero-overlay" />
         <div className="hero-content container">
@@ -24,7 +26,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section container">
+      {/* ---- Recently added ---- */}
+      <section className="section container page-enter">
         <h2 className="section-title">Recently Added</h2>
         <div className="product-grid">
           {recent.length > 0 ? (

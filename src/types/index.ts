@@ -1,5 +1,7 @@
+/** Whether a product is ready to ship or made to order */
 export type Availability = 'ready' | 'made-on-request'
 
+/** A product / model listed in the catalogue */
 export interface Product {
   id: string
   name: string
@@ -15,6 +17,7 @@ export interface Product {
   createdAt: Date
 }
 
+/** A customisation + customer-info bundle submitted as an order */
 export interface OrderRequest {
   id?: string
   productId: string
@@ -34,6 +37,7 @@ export interface OrderRequest {
   createdAt: Date
 }
 
+/** A message submitted via the Contact form */
 export interface ContactMessage {
   id?: string
   name: string

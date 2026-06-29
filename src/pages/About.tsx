@@ -1,6 +1,7 @@
+/** Static "About Us" page describing the brand story and mission */
 export default function About() {
   return (
-    <div className="about-page container section">
+    <div className="about-page container section page-enter">
       <h1 className="section-title">About Us</h1>
 
       <div className="about-content">
@@ -25,12 +26,14 @@ export default function About() {
             life. Every purchase supports local craftsmanship and helps preserve traditional
             skills.
           </p>
+
+          <div className="pull-quote">
+            Every stitch tells a story of tradition, care, and creativity.
+          </div>
         </div>
 
-        <div className="about-image">
-          <div className="image-placeholder">
-            <span>Workshop</span>
-          </div>
+        <div className="about-image-area">
+          <span className="about-image-label">Workshop</span>
         </div>
       </div>
     </div>

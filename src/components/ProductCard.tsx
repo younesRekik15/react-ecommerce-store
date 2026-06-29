@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
+import { AVAILABILITY_LABELS } from '../constants/navigation'
 import type { Product } from '../types'
 
-interface Props {
+interface ProductCardProps {
   product: Product
 }
 
-export default function ProductCard({ product }: Props) {
+/** A single clickable card in the product grid, showing the first image, category, and availability */
+export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link to={`/models/${product.id}`} className="product-card">
       <div className="product-card-image">
@@ -14,10 +16,11 @@ export default function ProductCard({ product }: Props) {
           alt={product.name}
           loading="lazy"
         />
+        <span className="category-chip">{product.category}</span>
         <span
           className={`availability-badge ${product.availability === 'ready' ? 'ready' : 'made-on-request'}`}
         >
-          {product.availability === 'ready' ? 'Ready' : 'Made on Request'}
+          {AVAILABILITY_LABELS[product.availability] ?? product.availability}
         </span>
       </div>
       <div className="product-card-info">

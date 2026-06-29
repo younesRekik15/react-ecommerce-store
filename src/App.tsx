@@ -8,6 +8,7 @@ import HowItWorks from './pages/HowItWorks'
 import Contact from './pages/Contact'
 import Feedback from './pages/Feedback'
 
+/** Root component — sets up client-side routing with a shared layout */
 export default function App() {
   return (
     <BrowserRouter>

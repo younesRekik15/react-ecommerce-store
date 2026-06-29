@@ -1,0 +1,70 @@
+/* ========================================
+   Keyframes & Animation Utilities
+   ======================================== */
+
+/* ---- Fade in + slide up ---- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- Hero background zoom ---- */
+@keyframes heroZoom {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* ---- Skeleton shimmer ---- */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ---- Bounce in ---- */
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---- Arrow slide (CTA button) ---- */
+@keyframes arrowSlide {
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+/* ---- Page enter ---- */
+.page-enter {
+  animation: fadeUp 0.4s ease both;
+}
+
+/* ---- Skeleton placeholder ---- */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-alt) 25%, var(--border) 50%, var(--bg-alt) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius);
+}

@@ -1,0 +1,281 @@
+/* ========================================
+   Page-Specific Styles
+   ======================================== */
+
+/* ----- About Page ----- */
+
+.about-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.about-text h2 {
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  margin-top: 28px;
+  margin-bottom: 10px;
+}
+
+.about-text h2:first-child {
+  margin-top: 0;
+}
+
+.about-text p {
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
+  font-size: var(--fs-body);
+}
+
+/* ---- About image area (decorative pattern) ---- */
+
+.about-image-area {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-image-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(45deg, var(--border) 1px, transparent 1px),
+    linear-gradient(-45deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.4;
+}
+
+.about-image-area::after {
+  content: '';
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 3px solid var(--teal);
+  border-radius: 50%;
+  opacity: 0.2;
+}
+
+.about-image-label {
+  position: relative;
+  z-index: 1;
+  font-weight: 500;
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 8px 20px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* ---- Mission pull-quote ---- */
+
+.pull-quote {
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--text);
+  padding: 20px 0 20px 24px;
+  margin: 20px 0;
+  border-left: 3px solid var(--teal);
+  font-style: italic;
+}
+
+/* ----- How It Works Page ----- */
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px;
+  position: relative;
+}
+
+/* Connecting line (desktop) */
+@media (min-width: 900px) {
+  .steps-grid {
+    background-image: linear-gradient(
+      to right,
+      var(--border) 0%,
+      var(--border) 100%
+    );
+    background-repeat: no-repeat;
+    background-size: calc(100% - 240px) 1px;
+    background-position: center 60px;
+  }
+}
+
+.step-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 40px 28px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+  border-top: 3px solid transparent;
+}
+
+.step-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-top-color: var(--teal);
+}
+
+.step-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--primary);
+  position: relative;
+}
+
+.step-number-label {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-card h3 {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.step-card p {
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+
+/* ----- Contact Page ----- */
+
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+}
+
+.contact-info-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow);
+}
+
+.contact-info-card h2 {
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.contact-info-card > p {
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  font-size: var(--fs-body);
+}
+
+.contact-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--fs-small);
+}
+
+.contact-info-item svg {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* ----- Feedback Page ----- */
+
+.feedback-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.feedback-card {
+  text-align: center;
+  max-width: 520px;
+  padding: 56px 40px;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.4s ease both;
+}
+
+.feedback-icon {
+  display: inline-flex;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  animation: bounceIn 0.5s ease both;
+}
+
+.feedback-card.success .feedback-icon {
+  background: var(--success);
+  color: var(--white);
+}
+
+.feedback-card.failure .feedback-icon {
+  background: var(--error);
+  color: var(--white);
+}
+
+.feedback-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+.feedback-card h1 {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.feedback-card p {
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  font-size: var(--fs-body);
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
