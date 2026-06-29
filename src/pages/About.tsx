@@ -1,4 +1,4 @@
-/** Static "About Us" page describing the brand story and mission */
+/** About page — brand story, process, and mission */
 export default function About() {
   return (
     <div className="about-page container section page-enter">
@@ -8,32 +8,30 @@ export default function About() {
         <div className="about-text">
           <h2>Our Story</h2>
           <p>
-            StitchCraft was born from a passion for handmade craftsmanship and a love for
-            unique, functional art. Every piece is carefully designed and stitched by hand,
-            combining traditional techniques with modern aesthetics.
+            I'm Younes, a sewist based in Tunisia. What started as watching YouTube
+            creators like <strong>Miko Craft</strong> and <strong>Sewing Time</strong>
+            quickly became a passion for making things with my own hands.
+          </p>
+
+          <h2>What I Make</h2>
+          <p>
+            Bags, pencil cases, stitched kitchen accessories — all made to order
+            with your choice of fabric and colors.
           </p>
 
           <h2>The Process</h2>
           <p>
-            From selecting the finest fabrics to the final stitch, each product goes through
-            a meticulous handmade process. We believe in quality over quantity, creating
-            pieces that are built to last.
-          </p>
-
-          <h2>Our Mission</h2>
-          <p>
-            We create sustainable, handmade fabric accessories that bring joy to everyday
-            life. Every purchase supports local craftsmanship and helps preserve traditional
-            skills.
+            From cutting the fabric to the final stitch, each piece is made start to
+            finish on a home sewing machine, with care and attention to quality.
           </p>
 
           <div className="pull-quote">
-            Every stitch tells a story of tradition, care, and creativity.
+            Made on a home sewing machine, one piece at a time.
           </div>
         </div>
 
         <div className="about-image-area">
-          <span className="about-image-label">Workshop</span>
+          <span className="about-image-label">My Workspace</span>
         </div>
       </div>
     </div>

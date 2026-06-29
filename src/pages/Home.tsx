@@ -16,10 +16,9 @@ export default function Home() {
     <>
       {/* ---- Hero ---- */}
       <section className="hero-section">
-        <div className="hero-overlay" />
-        <div className="hero-content container">
-          <h1>Handcrafted with Love</h1>
-          <p>Unique fabric accessories made just for you.</p>
+        <div className="hero-content">
+          <h1>Sewn by Hand, Made for You</h1>
+          <p>Handcrafted fabric accessories — bags, pencil cases, and kitchen essentials. Every piece made on a home sewing machine.</p>
           <Link to="/models" className="btn btn-primary">
             Browse Models
           </Link>

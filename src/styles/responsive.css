@@ -19,11 +19,7 @@
   }
 
   .hero-content h1 {
-    font-size: 2.2rem;
-  }
-
-  .hero-content p {
-    font-size: var(--fs-body);
+    font-size: 2.4rem;
   }
 }
 
@@ -45,8 +41,18 @@
   }
 
   .hero-section {
-    height: 60vh;
-    min-height: 360px;
+    height: 80vh;
+    min-height: 480px;
+    background:
+      linear-gradient(to bottom, #ffffff 0%, #ffffff 35%, transparent 88%),
+      url('https://images.unsplash.com/photo-1765384314152-b3c55a0833d9?w=1600&q=80') center/cover no-repeat;
+    align-items: flex-start;
+    padding-top: 80px;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    text-align: center;
   }
 
   .hero-content h1 {
