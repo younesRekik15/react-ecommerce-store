@@ -8,6 +8,9 @@ import {
   orderBy,
   limit,
   Timestamp,
+  serverTimestamp,
+  updateDoc,
+  deleteDoc,
 } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { db, storage } from './config'
@@ -60,4 +63,25 @@ export async function uploadImage(file: File): Promise<string> {
   const storageRef = ref(storage, `custom-images/${Date.now()}_${file.name}`)
   const result = await uploadBytes(storageRef, file)
   return getDownloadURL(result.ref)
+}
+
+/** Add a new product to the catalogue */
+export async function addProduct(
+  data: Omit<Product, 'id' | 'createdAt'>,
+): Promise<string> {
+  const docRef = await addDoc(productsRef, { ...data, createdAt: serverTimestamp() })
+  return docRef.id
+}
+
+/** Update an existing product */
+export async function updateProduct(
+  id: string,
+  data: Partial<Omit<Product, 'id' | 'createdAt'>>,
+): Promise<void> {
+  await updateDoc(doc(db, 'products', id), data)
+}
+
+/** Delete a product */
+export async function deleteProduct(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'products', id))
 }

@@ -20,7 +20,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="navbar">
+      <nav className={`navbar ${open ? 'menu-open' : ''}`}>
         <div className="navbar-inner container">
           <Link to="/" className="navbar-logo" onClick={() => setOpen(false)}>
             <span className="navbar-logo-mark">S</span>

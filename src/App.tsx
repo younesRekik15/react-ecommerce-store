@@ -7,6 +7,7 @@ import About from './pages/About'
 import HowItWorks from './pages/HowItWorks'
 import Contact from './pages/Contact'
 import Feedback from './pages/Feedback'
+import Admin from './pages/Admin'
 
 /** Root component — sets up client-side routing with a shared layout */
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
         </Route>
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   )
