@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import { getRecentProducts } from '../firebase/services'
+import { usePageTitle } from '../hooks/usePageTitle'
 import type { Product } from '../types'
 
 /** Landing page — hero banner + recently added products */
 export default function Home() {
+  usePageTitle('Handmade Fabric Products')
   const [recent, setRecent] = useState<Product[]>([])
 
   useEffect(() => {

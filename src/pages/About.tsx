@@ -1,5 +1,8 @@
+import { usePageTitle } from '../hooks/usePageTitle'
+
 /** About page — brand story, process, and mission */
 export default function About() {
+  usePageTitle('About Us')
   return (
     <div className="about-page container section page-enter">
       <h1 className="section-title">About Us</h1>

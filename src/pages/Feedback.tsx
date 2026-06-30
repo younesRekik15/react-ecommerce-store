@@ -1,7 +1,9 @@
 import { useSearchParams, Link } from 'react-router-dom'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 /** Feedback page shown after an order is submitted (success / failure) */
 export default function Feedback() {
+  usePageTitle('Order Submitted')
   const [params] = useSearchParams()
   const success = params.get('status') === 'success'
 

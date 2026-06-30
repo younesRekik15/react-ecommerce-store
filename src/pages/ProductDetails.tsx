@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import OrderForm from '../components/OrderForm'
 import { getProductById } from '../firebase/services'
 import { AVAILABILITY_LABELS } from '../constants/navigation'
+import { usePageTitle } from '../hooks/usePageTitle'
 import type { Product } from '../types'
 
 /** Full product detail page with image gallery and customisation form */
@@ -12,6 +13,8 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(0)
   const [prevImageIdx, setPrevImageIdx] = useState<number | null>(null)
+
+  usePageTitle(product?.name)
 
   useEffect(() => {
     if (!id) return

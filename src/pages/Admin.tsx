@@ -1,8 +1,19 @@
 import { useState, useEffect } from 'react'
 import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'firebase/auth'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { auth } from '../firebase/config'
-import { getProducts, addProduct, updateProduct, deleteProduct, uploadImage } from '../firebase/services'
-import type { Product, Availability } from '../types'
+import {
+  getProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  uploadImage,
+  getOrders,
+  updateOrderStatus,
+  getContactMessages,
+  markContactRead,
+} from '../firebase/services'
+import type { Product, Availability, OrderRequest, ContactMessage } from '../types'
 
 interface ProductForm {
   name: string
@@ -31,6 +42,7 @@ const emptyForm: ProductForm = {
 }
 
 export default function Admin() {
+  usePageTitle('Admin Panel')
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState<Product[]>([])
@@ -40,6 +52,13 @@ export default function Admin() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [tab, setTab] = useState<'products' | 'orders' | 'contacts'>('products')
+  const [orders, setOrders] = useState<OrderRequest[]>([])
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<OrderRequest['status'] | 'all'>('all')
+  const [contacts, setContacts] = useState<ContactMessage[]>([])
+  const [expandedContact, setExpandedContact] = useState<string | null>(null)
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -50,7 +69,10 @@ export default function Admin() {
   }, [])
 
   useEffect(() => {
-    if (user) loadProducts()
+    if (!user) return
+    loadProducts()
+    loadOrders()
+    loadContacts()
   }, [user])
 
   useEffect(() => {
@@ -66,6 +88,54 @@ export default function Admin() {
     } catch {
       setError('Failed to load products')
     }
+  }
+
+  async function loadOrders() {
+    try {
+      const data = await getOrders()
+      setOrders(data)
+    } catch {
+      setError('Failed to load orders')
+    }
+  }
+
+  async function handleStatusChange(id: string, status: OrderRequest['status']) {
+    setUpdatingStatus(true)
+    try {
+      await updateOrderStatus(id, status)
+      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)))
+      setSuccess(`Order marked as ${status}`)
+    } catch {
+      setError('Failed to update status')
+    }
+    setUpdatingStatus(false)
+  }
+
+  function toggleOrder(id: string) {
+    setExpandedOrder((prev) => (prev === id ? null : id))
+  }
+
+  async function loadContacts() {
+    try {
+      const data = await getContactMessages()
+      setContacts(data)
+    } catch {
+      setError('Failed to load messages')
+    }
+  }
+
+  async function handleMarkRead(id: string) {
+    try {
+      await markContactRead(id)
+      setContacts((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'read' } : c)))
+      setSuccess('Message marked as read')
+    } catch {
+      setError('Failed to update message')
+    }
+  }
+
+  function toggleContact(id: string) {
+    setExpandedContact((prev) => (prev === id ? null : id))
   }
 
   async function handleGoogleLogin() {
@@ -210,104 +280,282 @@ export default function Admin() {
         </div>
       </header>
 
+      {/* ---- Tabs ---- */}
+      <div className="admin-tabs">
+        <button
+          className={`admin-tab ${tab === 'products' ? 'admin-tab-active' : ''}`}
+          onClick={() => setTab('products')}
+        >
+          Products ({products.length})
+        </button>
+        <button
+          className={`admin-tab ${tab === 'orders' ? 'admin-tab-active' : ''}`}
+          onClick={() => setTab('orders')}
+        >
+          Orders ({orders.length})
+        </button>
+        <button
+          className={`admin-tab ${tab === 'contacts' ? 'admin-tab-active' : ''}`}
+          onClick={() => setTab('contacts')}
+        >
+          Messages ({contacts.length})
+        </button>
+      </div>
+
       <main className="admin-main">
         {error && <p className="admin-error">{error}</p>}
         {success && <p className="admin-success">{success}</p>}
 
-        {/* ---- Form ---- */}
-        <form className="admin-form" onSubmit={handleSave}>
-          <h2>{editingId ? 'Edit Product' : 'Add Product'}</h2>
+        {/* ---- Products Tab ---- */}
+        {tab === 'products' && (
+          <>
+            <form className="admin-form" onSubmit={handleSave}>
+              <h2>{editingId ? 'Edit Product' : 'Add Product'}</h2>
 
-          <div className="admin-form-grid">
-            <div className="admin-field">
-              <label>Name</label>
-              <input name="name" value={form.name} onChange={handleChange} required />
-            </div>
-            <div className="admin-field">
-              <label>Category</label>
-              <input name="category" value={form.category} onChange={handleChange} required />
-            </div>
-            <div className="admin-field admin-field-full">
-              <label>Description</label>
-              <textarea name="description" value={form.description} onChange={handleChange} rows={3} required />
-            </div>
-            <div className="admin-field">
-              <label>Availability</label>
-              <select name="availability" value={form.availability} onChange={handleChange}>
-                <option value="ready">Ready</option>
-                <option value="made-on-request">Made on Request</option>
-              </select>
-            </div>
-            <div className="admin-field">
-              <label>Est. Production Time</label>
-              <input name="estimatedProductionTime" value={form.estimatedProductionTime} onChange={handleChange} placeholder="e.g. 1-2 weeks" />
-            </div>
-            <div className="admin-field">
-              <label>Printing Option</label>
-              <label className="admin-check-label">
-                <input type="checkbox" checked={form.printingOptions} onChange={(e) => setForm((prev) => ({ ...prev, printingOptions: e.target.checked }))} />
-                Available
-              </label>
-            </div>
-            <div className="admin-field admin-field-full">
-              <label>Colors (one per line)</label>
-              <textarea value={form.colors.join('\n')} onChange={(e) => handleArrayField('colors', e.target.value)} rows={3} />
-            </div>
-            <div className="admin-field admin-field-full">
-              <label>Stitching Patterns (one per line)</label>
-              <textarea value={form.stitchingPatterns.join('\n')} onChange={(e) => handleArrayField('stitchingPatterns', e.target.value)} rows={3} />
-            </div>
-            <div className="admin-field admin-field-full">
-              <label>Optional Accessories (one per line)</label>
-              <textarea value={form.optionalAccessories.join('\n')} onChange={(e) => handleArrayField('optionalAccessories', e.target.value)} rows={3} />
-            </div>
+              <div className="admin-form-grid">
+                <div className="admin-field">
+                  <label>Name</label>
+                  <input name="name" value={form.name} onChange={handleChange} required />
+                </div>
+                <div className="admin-field">
+                  <label>Category</label>
+                  <input name="category" value={form.category} onChange={handleChange} required />
+                </div>
+                <div className="admin-field admin-field-full">
+                  <label>Description</label>
+                  <textarea name="description" value={form.description} onChange={handleChange} rows={3} required />
+                </div>
+                <div className="admin-field">
+                  <label>Availability</label>
+                  <select name="availability" value={form.availability} onChange={handleChange}>
+                    <option value="ready">Ready</option>
+                    <option value="made-on-request">Made on Request</option>
+                  </select>
+                </div>
+                <div className="admin-field">
+                  <label>Est. Production Time</label>
+                  <input name="estimatedProductionTime" value={form.estimatedProductionTime} onChange={handleChange} placeholder="e.g. 1-2 weeks" />
+                </div>
+                <div className="admin-field">
+                  <label>Printing Option</label>
+                  <label className="admin-check-label">
+                    <input type="checkbox" checked={form.printingOptions} onChange={(e) => setForm((prev) => ({ ...prev, printingOptions: e.target.checked }))} />
+                    Available
+                  </label>
+                </div>
+                <div className="admin-field admin-field-full">
+                  <label>Colors (one per line)</label>
+                  <textarea value={form.colors.join('\n')} onChange={(e) => handleArrayField('colors', e.target.value)} rows={3} />
+                </div>
+                <div className="admin-field admin-field-full">
+                  <label>Stitching Patterns (one per line)</label>
+                  <textarea value={form.stitchingPatterns.join('\n')} onChange={(e) => handleArrayField('stitchingPatterns', e.target.value)} rows={3} />
+                </div>
+                <div className="admin-field admin-field-full">
+                  <label>Optional Accessories (one per line)</label>
+                  <textarea value={form.optionalAccessories.join('\n')} onChange={(e) => handleArrayField('optionalAccessories', e.target.value)} rows={3} />
+                </div>
 
-            <div className="admin-field admin-field-full">
-              <label>Images</label>
-              <input type="file" accept="image/*" multiple onChange={handleImageUpload} disabled={uploading} />
-              {uploading && <p className="admin-muted">Uploading...</p>}
-              {form.images.length > 0 && (
-                <div className="admin-image-list">
-                  {form.images.map((url, i) => (
-                    <div key={i} className="admin-image-item">
-                      <img src={url} alt="" />
-                      <button type="button" className="admin-btn-remove" onClick={() => removeImage(i)}>✕</button>
+                <div className="admin-field admin-field-full">
+                  <label>Images</label>
+                  <input type="file" accept="image/*" multiple onChange={handleImageUpload} disabled={uploading} />
+                  {uploading && <p className="admin-muted">Uploading...</p>}
+                  {form.images.length > 0 && (
+                    <div className="admin-image-list">
+                      {form.images.map((url, i) => (
+                        <div key={i} className="admin-image-item">
+                          <img src={url} alt="" />
+                          <button type="button" className="admin-btn-remove" onClick={() => removeImage(i)}>✕</button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="admin-form-actions">
-            {editingId && (
-              <button type="button" className="admin-btn admin-btn-secondary" onClick={handleCancelEdit}>Cancel</button>
-            )}
-            <button type="submit" className="admin-btn" disabled={saving || uploading}>
-              {saving ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
-            </button>
-          </div>
-        </form>
-
-        {/* ---- Product List ---- */}
-        <div className="admin-list">
-          <h2>Products ({products.length})</h2>
-          {products.map((p) => (
-            <div key={p.id} className="admin-list-item">
-              <div className="admin-list-item-info">
-                {p.images[0] && <img src={p.images[0]} alt="" className="admin-thumb" />}
-                <div>
-                  <strong>{p.name}</strong>
-                  <span className="admin-muted">{p.category} — {p.availability}</span>
+                  )}
                 </div>
               </div>
-              <div className="admin-list-item-actions">
-                <button className="admin-btn admin-btn-sm" onClick={() => handleEdit(p)}>Edit</button>
-                <button className="admin-btn admin-btn-sm admin-btn-danger" onClick={() => handleDelete(p.id)}>Delete</button>
+
+              <div className="admin-form-actions">
+                {editingId && (
+                  <button type="button" className="admin-btn admin-btn-secondary" onClick={handleCancelEdit}>Cancel</button>
+                )}
+                <button type="submit" className="admin-btn" disabled={saving || uploading}>
+                  {saving ? 'Saving...' : editingId ? 'Update Product' : 'Add Product'}
+                </button>
+              </div>
+            </form>
+
+            <div className="admin-list">
+              <h2>Products ({products.length})</h2>
+              {products.map((p) => (
+                <div key={p.id} className="admin-list-item">
+                  <div className="admin-list-item-info">
+                    {p.images[0] && <img src={p.images[0]} alt="" className="admin-thumb" />}
+                    <div>
+                      <strong>{p.name}</strong>
+                      <span className="admin-muted">{p.category} — {p.availability}</span>
+                    </div>
+                  </div>
+                  <div className="admin-list-item-actions">
+                    <button className="admin-btn admin-btn-sm" onClick={() => handleEdit(p)}>Edit</button>
+                    <button className="admin-btn admin-btn-sm admin-btn-danger" onClick={() => handleDelete(p.id)}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ---- Orders Tab ---- */}
+        {tab === 'orders' && (
+          <div className="admin-list">
+            <div className="admin-list-header">
+              <h2>Orders ({orders.length})</h2>
+              <div className="admin-filter-group">
+                {(['all', 'pending', 'confirmed', 'completed'] as const).map((s) => (
+                  <button
+                    key={s}
+                    className={`admin-filter-btn ${statusFilter === s ? 'admin-filter-active' : ''}`}
+                    onClick={() => setStatusFilter(s)}
+                  >
+                    {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
+                  </button>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
+            {orders.length === 0 && <p className="admin-muted">No orders yet.</p>}
+            {orders.filter((o) => statusFilter === 'all' || o.status === statusFilter).map((o) => (
+              <div key={o.id} className="admin-order-item">
+                <button className="admin-order-header" onClick={() => toggleOrder(o.id!)}>
+                  <div className="admin-order-header-info">
+                    <strong>{o.customerName}</strong>
+                    <span className="admin-muted">{o.productName}</span>
+                  </div>
+                  <div className="admin-order-header-right">
+                    <span className={`admin-status-badge admin-status-${o.status}`}>{o.status}</span>
+                    <span className="admin-order-date">{new Date((o.createdAt as any)?.toDate?.() ?? o.createdAt).toLocaleDateString()}</span>
+                    <span className="admin-chevron">{expandedOrder === o.id ? '▲' : '▼'}</span>
+                  </div>
+                </button>
+                {expandedOrder === o.id && (
+                  <div className="admin-order-detail">
+                    <div className="admin-order-detail-grid">
+                      <div className="admin-field">
+                        <label>Customer</label>
+                        <p>{o.customerName}</p>
+                      </div>
+                      <div className="admin-field">
+                        <label>Phone</label>
+                        <p>{o.phone}</p>
+                      </div>
+                      <div className="admin-field">
+                        <label>Email</label>
+                        <p>{o.email}</p>
+                      </div>
+                      <div className="admin-field">
+                        <label>Product</label>
+                        <p>{o.productName}</p>
+                      </div>
+                      <div className="admin-field">
+                        <label>Color</label>
+                        <p>{o.customization.color}</p>
+                      </div>
+                      <div className="admin-field">
+                        <label>Stitching Pattern</label>
+                        <p>{o.customization.stitchingPattern || '—'}</p>
+                      </div>
+                      {o.customization.accessories.length > 0 && (
+                        <div className="admin-field">
+                          <label>Accessories</label>
+                          <p>{o.customization.accessories.join(', ')}</p>
+                        </div>
+                      )}
+                      {o.customization.printDesign && (
+                        <div className="admin-field">
+                          <label>Print Design</label>
+                          <p>{o.customization.printDesign}</p>
+                        </div>
+                      )}
+                      {o.customization.customImage && (
+                        <div className="admin-field">
+                          <label>Custom Image</label>
+                          <a href={o.customization.customImage} target="_blank" rel="noopener noreferrer">View Image</a>
+                        </div>
+                      )}
+                      {o.message && (
+                        <div className="admin-field admin-field-full">
+                          <label>Notes</label>
+                          <p>{o.message}</p>
+                        </div>
+                      )}
+                      <div className="admin-field">
+                        <label>Status</label>
+                        <select
+                          value={o.status}
+                          disabled={updatingStatus}
+                          onChange={(e) => handleStatusChange(o.id!, e.target.value as OrderRequest['status'])}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ---- Contacts Tab ---- */}
+        {tab === 'contacts' && (
+          <div className="admin-list">
+            <h2>Messages ({contacts.length})</h2>
+            {contacts.length === 0 && <p className="admin-muted">No messages yet.</p>}
+            {contacts.map((c) => (
+              <div key={c.id} className="admin-contact-item">
+                <button className="admin-contact-header" onClick={() => toggleContact(c.id!)}>
+                  <div className="admin-contact-header-info">
+                    <div className="admin-contact-name-row">
+                      <span className={`admin-contact-dot ${c.status === 'new' ? 'admin-dot-new' : ''}`} />
+                      <strong className={c.status === 'new' ? 'admin-contact-unread' : ''}>{c.name}</strong>
+                    </div>
+                    <span className="admin-muted">{c.email} {c.phone ? `— ${c.phone}` : ''}</span>
+                  </div>
+                  <div className="admin-contact-header-right">
+                    <span className="admin-order-date">{new Date((c.createdAt as any)?.toDate?.() ?? c.createdAt).toLocaleDateString()}</span>
+                    <span className="admin-chevron">{expandedContact === c.id ? '▲' : '▼'}</span>
+                  </div>
+                </button>
+                {expandedContact === c.id && (
+                  <div className="admin-contact-detail">
+                    <div className="admin-field">
+                      <label>Email</label>
+                      <p>{c.email}</p>
+                    </div>
+                    {c.phone && (
+                      <div className="admin-field">
+                        <label>Phone</label>
+                        <p>{c.phone}</p>
+                      </div>
+                    )}
+                    <div className="admin-field">
+                      <label>Message</label>
+                      <p className="admin-contact-message-text">{c.message}</p>
+                    </div>
+                    {c.status === 'new' && (
+                      <button className="admin-btn admin-btn-sm" onClick={() => handleMarkRead(c.id!)}>
+                        Mark as read
+                      </button>
+                    )}
+                    {c.status !== 'new' && (
+                      <span className="admin-muted">✓ Read</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   )

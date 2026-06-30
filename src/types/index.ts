@@ -44,5 +44,6 @@ export interface ContactMessage {
   email: string
   phone: string
   message: string
+  status: 'new' | 'read'
   createdAt: Date
 }

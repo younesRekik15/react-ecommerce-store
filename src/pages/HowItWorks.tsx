@@ -1,7 +1,9 @@
 import { HOW_IT_WORKS_STEPS } from '../constants/navigation'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 /** "How It Works" page — explains the ordering process in 4 steps */
 export default function HowItWorks() {
+  usePageTitle('How It Works')
   return (
     <div className="how-it-works container section page-enter">
       <h1 className="section-title">How It Works</h1>

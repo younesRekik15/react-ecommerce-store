@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { submitContactMessage } from '../firebase/services'
 import PhoneInput from '../components/PhoneInput'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 /** Contact page with an inline form that submits messages to Firestore */
 export default function Contact() {
+  usePageTitle('Contact')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('+216 ')
@@ -14,7 +16,7 @@ export default function Contact() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     try {
-      await submitContactMessage({ name, email, phone, message })
+      await submitContactMessage({ name, email, phone, message, status: 'new' })
       setSent(true)
     } catch {
       setError('Failed to send message. Please try again.')

@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import ProductCard from '../components/ProductCard'
 import { getProducts } from '../firebase/services'
 import { CATEGORIES, AVAILABILITY_LABELS } from '../constants/navigation'
+import { usePageTitle } from '../hooks/usePageTitle'
 import type { Product, Availability } from '../types'
 
 /** Catalogue page with search, category, and availability filters */
 export default function Models() {
+  usePageTitle('Browse Models')
   const [products, setProducts] = useState<Product[]>([])
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('')

@@ -7,6 +7,9 @@ import About from './pages/About'
 import HowItWorks from './pages/HowItWorks'
 import Contact from './pages/Contact'
 import Feedback from './pages/Feedback'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
+import NotFound from './pages/NotFound'
 import Admin from './pages/Admin'
 
 /** Root component — sets up client-side routing with a shared layout */
@@ -22,6 +25,9 @@ export default function App() {
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="/admin" element={<Admin />} />
       </Routes>

@@ -85,3 +85,30 @@ export async function updateProduct(
 export async function deleteProduct(id: string): Promise<void> {
   await deleteDoc(doc(db, 'products', id))
 }
+
+/** Fetch all order requests, newest first */
+export async function getOrders(): Promise<OrderRequest[]> {
+  const q = query(ordersRef, orderBy('createdAt', 'desc'))
+  const snapshot = await getDocs(q)
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as OrderRequest))
+}
+
+/** Update the status of an order */
+export async function updateOrderStatus(
+  id: string,
+  status: OrderRequest['status'],
+): Promise<void> {
+  await updateDoc(doc(db, 'orders', id), { status })
+}
+
+/** Fetch all contact messages, newest first */
+export async function getContactMessages(): Promise<ContactMessage[]> {
+  const q = query(contactsRef, orderBy('createdAt', 'desc'))
+  const snapshot = await getDocs(q)
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as ContactMessage))
+}
+
+/** Mark a contact message as read */
+export async function markContactRead(id: string): Promise<void> {
+  await updateDoc(doc(db, 'contacts', id), { status: 'read' })
+}

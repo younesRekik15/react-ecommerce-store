@@ -73,6 +73,10 @@ export default function Footer() {
 
       <div className="footer-bottom container">
         <p>&copy; {new Date().getFullYear()} StitchCraft. All rights reserved.</p>
+        <div className="footer-bottom-links">
+          <Link to="/privacy">Privacy Policy</Link>
+          <Link to="/terms">Terms of Service</Link>
+        </div>
       </div>
     </footer>
   )

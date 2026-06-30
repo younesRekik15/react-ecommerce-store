@@ -133,9 +133,28 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 20px var(--side-padding);
   margin-top: 40px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
   font-size: var(--fs-caption);
   position: relative;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-bottom-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-bottom-links a:hover {
+  color: var(--white);
 }
 
 .footer-bottom::before {
