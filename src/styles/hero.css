@@ -10,7 +10,7 @@
   align-items: center;
   background:
     linear-gradient(to right, #ffffff 0%, #ffffff 40%, transparent 92%),
-    url('https://images.unsplash.com/photo-1765384314152-b3c55a0833d9?w=1600&q=80') right 30% center / cover no-repeat;
+    url('/images/hero.jpg') right 30% center / cover no-repeat;
   width: 100vw;
   left: 50%;
   margin-left: -50vw;

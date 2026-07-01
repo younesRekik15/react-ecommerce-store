@@ -45,7 +45,7 @@
     min-height: 480px;
     background:
       linear-gradient(to bottom, #ffffff 0%, #ffffff 35%, transparent 88%),
-      url('https://images.unsplash.com/photo-1765384314152-b3c55a0833d9?w=1600&q=80') center/cover no-repeat;
+      url('/images/hero-phone.png') center/cover no-repeat;
     align-items: flex-start;
     padding-top: 80px;
   }
