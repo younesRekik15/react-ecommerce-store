@@ -3,17 +3,13 @@ import { getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 import { getAuth } from 'firebase/auth'
 
-/**
- * Firebase configuration read from environment variables.
- * Prefix each variable with `VITE_` so Vite exposes it to the client.
- */
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyAaDrvd6nzCzw6fYYe_u-z19CoNgEhm-jA",
+  authDomain: "stitchcraft-8d718.firebaseapp.com",
+  projectId: "stitchcraft-8d718",
+  storageBucket: "stitchcraft-8d718.firebasestorage.app",
+  messagingSenderId: "264456624166",
+  appId: "1:264456624166:web:00b26877b8c677398feee7",
 }
 
 const app = initializeApp(firebaseConfig)
