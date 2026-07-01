@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { submitOrderRequest, uploadImage } from '../firebase/services'
-import { PRINT_DESIGN_OPTIONS } from '../constants/navigation'
 import ColorSwatches from './ColorSwatches'
 import PhoneInput from './PhoneInput'
 import type { Product } from '../types'
@@ -14,7 +13,6 @@ export default function OrderForm({ product }: OrderFormProps) {
   const navigate = useNavigate()
 
   const [color, setColor] = useState(product.colors[0] || '')
-  const [printDesign, setPrintDesign] = useState('')
   const [customImage, setCustomImage] = useState<File | null>(null)
 
   const [name, setName] = useState('')
@@ -41,7 +39,6 @@ export default function OrderForm({ product }: OrderFormProps) {
         email,
         customization: {
           color,
-          printDesign: printDesign || null,
           customImage: customImageUrl,
         },
         message,
@@ -69,18 +66,9 @@ export default function OrderForm({ product }: OrderFormProps) {
       )}
 
       {product.printingOptions && (
-        <>
-          <div className="form-group">
-            <label>Print Design</label>
-            <select value={printDesign} onChange={(e) => setPrintDesign(e.target.value)}>
-              {PRINT_DESIGN_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Upload Custom Image</label>
+        <div className="form-group">
+          <label>Upload Custom Image</label>
+          <div className="print-upload-row">
             <label className="file-dropzone">
               <svg className="file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
@@ -100,16 +88,21 @@ export default function OrderForm({ product }: OrderFormProps) {
                 onChange={(e) => setCustomImage(e.target.files?.[0] || null)}
               />
             </label>
-            <small>Subject to approval</small>
+            {product.printAreaPreview && (
+              <div className="print-preview">
+                <img src={product.printAreaPreview} alt="Print area" className="print-preview-img" />
+                <span className="print-preview-label">Print area</span>
+              </div>
+            )}
           </div>
-        </>
+          <small>Subject to approval</small>
+        </div>
       )}
 
       <div className="order-summary">
         <h4>Order Summary</h4>
         <p>Product: {product.name}</p>
         {color && <p>Color: {color}</p>}
-        {printDesign && <p>Print: {printDesign}</p>}
         {customImage && <p>Custom image uploaded</p>}
       </div>
 

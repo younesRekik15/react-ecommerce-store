@@ -481,13 +481,21 @@
 }
 
 .admin-color-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
+  padding: 4px 8px 4px 24px;
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: var(--fs-caption);
+}
+
+.admin-color-item .admin-btn-remove {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: auto;
 }
 
 .admin-color-swatch {
@@ -526,6 +534,24 @@
   font-size: var(--fs-caption);
   color: var(--text-muted);
   white-space: nowrap;
+}
+
+/* ---- Print area preview upload ---- */
+
+.admin-preview-uploaded {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.admin-preview-thumb {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
 }
 
 /* ---- Image list ---- */

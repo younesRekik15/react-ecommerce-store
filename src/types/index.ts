@@ -12,6 +12,7 @@ export interface Product {
   estimatedProductionTime: string | null
   colors: string[]
   printingOptions: boolean
+  printAreaPreview: string | null
   createdAt: Date
 }
 
@@ -25,7 +26,6 @@ export interface OrderRequest {
   email: string
   customization: {
     color: string
-    printDesign: string | null
     customImage: string | null
   }
   message: string

@@ -24,6 +24,7 @@ interface ProductForm {
   estimatedProductionTime: string
   colors: string[]
   printingOptions: boolean
+  printAreaPreview: string | null
 }
 
 const emptyForm: ProductForm = {
@@ -35,6 +36,7 @@ const emptyForm: ProductForm = {
   estimatedProductionTime: '',
   colors: [],
   printingOptions: false,
+  printAreaPreview: null,
 }
 
 export default function Admin() {
@@ -49,6 +51,7 @@ export default function Admin() {
   const [saving, setSaving] = useState(false)
   const [colorInput, setColorInput] = useState('#222222')
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [previewUploading, setPreviewUploading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [tab, setTab] = useState<'products' | 'orders' | 'contacts'>('products')
@@ -199,6 +202,19 @@ export default function Admin() {
     setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }))
   }
 
+  async function handlePreviewUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPreviewUploading(true)
+    try {
+      const url = await uploadImage(file)
+      setForm((prev) => ({ ...prev, printAreaPreview: url }))
+    } catch {
+      setError('Preview upload failed')
+    }
+    setPreviewUploading(false)
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setError('')
@@ -208,6 +224,7 @@ export default function Admin() {
       const data = {
         ...form,
         estimatedProductionTime: form.estimatedProductionTime || null,
+        printAreaPreview: form.printAreaPreview || null,
       }
       if (editingId) {
         await updateProduct(editingId, data)
@@ -235,6 +252,7 @@ export default function Admin() {
       estimatedProductionTime: product.estimatedProductionTime || '',
       colors: product.colors,
       printingOptions: product.printingOptions,
+      printAreaPreview: product.printAreaPreview,
     })
     setEditingId(product.id)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -347,7 +365,15 @@ export default function Admin() {
                 </div>
                 <div className="admin-field">
                   <label>Est. Production Time</label>
-                  <input name="estimatedProductionTime" value={form.estimatedProductionTime} onChange={handleChange} placeholder="e.g. 1-2 weeks" />
+                  <select name="estimatedProductionTime" value={form.estimatedProductionTime} onChange={handleChange}>
+                    <option value="">Not specified</option>
+                    <option value="3-5 days">3-5 days</option>
+                    <option value="1-2 weeks">1-2 weeks</option>
+                    <option value="2-3 weeks">2-3 weeks</option>
+                    <option value="3-4 weeks">3-4 weeks</option>
+                    <option value="1 month">1 month</option>
+                    <option value="2 months">2 months</option>
+                  </select>
                 </div>
                 <div className="admin-field">
                   <label>Printing Option</label>
@@ -355,6 +381,20 @@ export default function Admin() {
                     <input type="checkbox" checked={form.printingOptions} onChange={(e) => setForm((prev) => ({ ...prev, printingOptions: e.target.checked }))} />
                     Available
                   </label>
+                </div>
+                <div className="admin-field">
+                  <label>Print Area Preview</label>
+                  {form.printAreaPreview ? (
+                    <div className="admin-preview-uploaded">
+                      <img src={form.printAreaPreview} alt="" className="admin-preview-thumb" />
+                      <button type="button" className="admin-btn admin-btn-sm" onClick={() => setForm((prev) => ({ ...prev, printAreaPreview: null }))}>Remove</button>
+                    </div>
+                  ) : (
+                    <>
+                      <input type="file" accept="image/*" onChange={handlePreviewUpload} disabled={previewUploading} />
+                      {previewUploading && <p className="admin-muted">Uploading preview...</p>}
+                    </>
+                  )}
                 </div>
                 <div className="admin-field admin-field-full">
                   <label>Colors</label>
@@ -498,12 +538,6 @@ export default function Admin() {
                         <label>Color</label>
                         <p>{o.customization.color}</p>
                       </div>
-                      {o.customization.printDesign && (
-                        <div className="admin-field">
-                          <label>Print Design</label>
-                          <p>{o.customization.printDesign}</p>
-                        </div>
-                      )}
                       {o.customization.customImage && (
                         <div className="admin-field">
                           <label>Custom Image</label>
