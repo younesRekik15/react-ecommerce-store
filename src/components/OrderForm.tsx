@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { submitOrderRequest } from '../firebase/services'
+import { submitOrderRequest, uploadImage } from '../firebase/services'
 import { PRINT_DESIGN_OPTIONS } from '../constants/navigation'
 import ColorSwatches from './ColorSwatches'
 import PhoneInput from './PhoneInput'
@@ -10,43 +10,29 @@ interface OrderFormProps {
   product: Product
 }
 
-/**
- * Customisation + customer-info form for placing an order request.
- * Submits the data via Firestore and navigates to the feedback page.
- */
 export default function OrderForm({ product }: OrderFormProps) {
   const navigate = useNavigate()
 
-  /* ---- Customisation state ---- */
   const [color, setColor] = useState(product.colors[0] || '')
-  const [stitching, setStitching] = useState(product.stitchingPatterns[0] || '')
-  const [accessories, setAccessories] = useState<string[]>([])
   const [printDesign, setPrintDesign] = useState('')
   const [customImage, setCustomImage] = useState<File | null>(null)
 
-  /* ---- Customer info state ---- */
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('+216 ')
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  /** Toggle an optional accessory on / off */
-  function toggleAccessory(accessory: string) {
-    setAccessories((prev) =>
-      prev.includes(accessory)
-        ? prev.filter((x) => x !== accessory)
-        : [...prev, accessory],
-    )
-  }
-
-  /** Persist the order to Firestore and redirect to the feedback page */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name || !phone) return
 
     setSubmitting(true)
     try {
+      let customImageUrl: string | null = null
+      if (customImage) {
+        customImageUrl = await uploadImage(customImage)
+      }
       await submitOrderRequest({
         productId: product.id,
         productName: product.name,
@@ -55,10 +41,8 @@ export default function OrderForm({ product }: OrderFormProps) {
         email,
         customization: {
           color,
-          stitchingPattern: stitching,
-          accessories,
           printDesign: printDesign || null,
-          customImage: customImage ? customImage.name : null,
+          customImage: customImageUrl,
         },
         message,
         status: 'pending',
@@ -73,7 +57,6 @@ export default function OrderForm({ product }: OrderFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="order-form">
-      {/* ---- Colour picker (swatches) ---- */}
       {product.colors.length > 0 && (
         <div className="form-group">
           <label>Color</label>
@@ -85,36 +68,6 @@ export default function OrderForm({ product }: OrderFormProps) {
         </div>
       )}
 
-      {/* ---- Stitching pattern ---- */}
-      {product.stitchingPatterns.length > 0 && (
-        <div className="form-group">
-          <label>Stitching Pattern</label>
-          <select value={stitching} onChange={(e) => setStitching(e.target.value)}>
-            {product.stitchingPatterns.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* ---- Optional accessories ---- */}
-      {product.optionalAccessories.length > 0 && (
-        <div className="form-group">
-          <label>Optional Accessories</label>
-          {product.optionalAccessories.map((a) => (
-            <label key={a} className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={accessories.includes(a)}
-                onChange={() => toggleAccessory(a)}
-              />
-              {a}
-            </label>
-          ))}
-        </div>
-      )}
-
-      {/* ---- Printing options ---- */}
       {product.printingOptions && (
         <>
           <div className="form-group">
@@ -152,18 +105,14 @@ export default function OrderForm({ product }: OrderFormProps) {
         </>
       )}
 
-      {/* ---- Order summary ---- */}
       <div className="order-summary">
         <h4>Order Summary</h4>
         <p>Product: {product.name}</p>
         {color && <p>Color: {color}</p>}
-        {stitching && <p>Stitching: {stitching}</p>}
-        {accessories.length > 0 && <p>Accessories: {accessories.join(', ')}</p>}
         {printDesign && <p>Print: {printDesign}</p>}
         {customImage && <p>Custom image uploaded</p>}
       </div>
 
-      {/* ---- Customer information ---- */}
       <fieldset className="form-fieldset">
         <legend>Your Information</legend>
         <div className="form-group">

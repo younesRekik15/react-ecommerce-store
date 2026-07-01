@@ -23,8 +23,6 @@ interface ProductForm {
   availability: Availability
   estimatedProductionTime: string
   colors: string[]
-  stitchingPatterns: string[]
-  optionalAccessories: string[]
   printingOptions: boolean
 }
 
@@ -36,8 +34,6 @@ const emptyForm: ProductForm = {
   availability: 'made-on-request',
   estimatedProductionTime: '',
   colors: [],
-  stitchingPatterns: [],
-  optionalAccessories: [],
   printingOptions: false,
 }
 
@@ -49,7 +45,10 @@ export default function Admin() {
   const [form, setForm] = useState<ProductForm>(emptyForm)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<{ completed: number; total: number } | null>(null)
   const [saving, setSaving] = useState(false)
+  const [colorInput, setColorInput] = useState('#222222')
+  const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [tab, setTab] = useState<'products' | 'orders' | 'contacts'>('products')
@@ -159,25 +158,41 @@ export default function Admin() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  function handleArrayField(name: 'colors' | 'stitchingPatterns' | 'optionalAccessories', value: string) {
-    setForm((prev) => ({ ...prev, [name]: value.split('\n').map((s) => s.trim()).filter(Boolean) }))
-  }
-
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files
     if (!files || files.length === 0) return
+
+    const localPreviews = Array.from(files).map((f) => URL.createObjectURL(f))
+    setPreviewUrls((prev) => [...prev, ...localPreviews])
+
     setUploading(true)
+    const fileList = Array.from(files)
+    setUploadProgress({ completed: 0, total: fileList.length })
+
     try {
-      const urls: string[] = []
-      for (const file of Array.from(files)) {
-        const url = await uploadImage(file)
-        urls.push(url)
-      }
-      setForm((prev) => ({ ...prev, images: [...prev.images, ...urls] }))
+      const results = new Array<string>(fileList.length)
+      const promises = fileList.map((file, i) =>
+        uploadImage(file).then((url) => {
+          results[i] = url
+          setUploadProgress((prev) => prev ? { ...prev, completed: prev.completed + 1 } : prev)
+          return url
+        }),
+      )
+      await Promise.all(promises)
+      setForm((prev) => ({ ...prev, images: [...prev.images, ...results] }))
     } catch {
       setError('Image upload failed')
     }
+    setUploadProgress(null)
     setUploading(false)
+  }
+
+  function addColor() {
+    setForm((prev) => ({ ...prev, colors: [...prev.colors, colorInput] }))
+  }
+
+  function removeColor(idx: number) {
+    setForm((prev) => ({ ...prev, colors: prev.colors.filter((_, i) => i !== idx) }))
   }
 
   function removeImage(idx: number) {
@@ -219,8 +234,6 @@ export default function Admin() {
       availability: product.availability,
       estimatedProductionTime: product.estimatedProductionTime || '',
       colors: product.colors,
-      stitchingPatterns: product.stitchingPatterns,
-      optionalAccessories: product.optionalAccessories,
       printingOptions: product.printingOptions,
     })
     setEditingId(product.id)
@@ -344,22 +357,49 @@ export default function Admin() {
                   </label>
                 </div>
                 <div className="admin-field admin-field-full">
-                  <label>Colors (one per line)</label>
-                  <textarea value={form.colors.join('\n')} onChange={(e) => handleArrayField('colors', e.target.value)} rows={3} />
-                </div>
-                <div className="admin-field admin-field-full">
-                  <label>Stitching Patterns (one per line)</label>
-                  <textarea value={form.stitchingPatterns.join('\n')} onChange={(e) => handleArrayField('stitchingPatterns', e.target.value)} rows={3} />
-                </div>
-                <div className="admin-field admin-field-full">
-                  <label>Optional Accessories (one per line)</label>
-                  <textarea value={form.optionalAccessories.join('\n')} onChange={(e) => handleArrayField('optionalAccessories', e.target.value)} rows={3} />
+                  <label>Colors</label>
+                  <div className="admin-color-picker-row">
+                    <input type="color" value={colorInput} onChange={(e) => setColorInput(e.target.value)} />
+                    <button type="button" className="admin-btn admin-btn-sm" onClick={addColor}>Add Color</button>
+                  </div>
+                  {form.colors.length > 0 && (
+                    <div className="admin-color-list">
+                      {form.colors.map((hex, i) => (
+                        <div key={i} className="admin-color-item">
+                          <span className="admin-color-swatch" style={{ backgroundColor: hex }} />
+                          <span>{hex}</span>
+                          <button type="button" className="admin-btn-remove" onClick={() => removeColor(i)}>✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="admin-field admin-field-full">
                   <label>Images</label>
                   <input type="file" accept="image/*" multiple onChange={handleImageUpload} disabled={uploading} />
-                  {uploading && <p className="admin-muted">Uploading...</p>}
+                  {uploading && uploadProgress && (
+                    <div className="admin-upload-progress">
+                      <div className="admin-upload-bar-track">
+                        <div
+                          className="admin-upload-bar-fill"
+                          style={{ width: `${(uploadProgress.completed / uploadProgress.total) * 100}%` }}
+                        />
+                      </div>
+                      <span className="admin-upload-count">
+                        {uploadProgress.completed} / {uploadProgress.total}
+                      </span>
+                    </div>
+                  )}
+                  {previewUrls.length > 0 && (
+                    <div className="admin-image-list">
+                      {previewUrls.map((url, i) => (
+                        <div key={i} className="admin-image-item">
+                          <img src={url} alt="" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {form.images.length > 0 && (
                     <div className="admin-image-list">
                       {form.images.map((url, i) => (
@@ -458,16 +498,6 @@ export default function Admin() {
                         <label>Color</label>
                         <p>{o.customization.color}</p>
                       </div>
-                      <div className="admin-field">
-                        <label>Stitching Pattern</label>
-                        <p>{o.customization.stitchingPattern || '—'}</p>
-                      </div>
-                      {o.customization.accessories.length > 0 && (
-                        <div className="admin-field">
-                          <label>Accessories</label>
-                          <p>{o.customization.accessories.join(', ')}</p>
-                        </div>
-                      )}
                       {o.customization.printDesign && (
                         <div className="admin-field">
                           <label>Print Design</label>

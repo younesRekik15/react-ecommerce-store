@@ -32,7 +32,7 @@ export const HOW_IT_WORKS_STEPS: Step[] = [
   {
     icon: '02',
     title: 'Customize',
-    desc: 'Select colors, patterns, and accessories to make it uniquely yours.',
+    desc: 'Select colors to make it uniquely yours.',
   },
   {
     icon: '03',

@@ -12,8 +12,8 @@ import {
   updateDoc,
   deleteDoc,
 } from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { db, storage } from './config'
+import { db } from './config'
+import { CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET } from '../constants/cloudinary'
 import type { Product, OrderRequest, ContactMessage } from '../types'
 
 /* ---- Collection references ---- */
@@ -58,11 +58,24 @@ export async function submitContactMessage(
   return docRef.id
 }
 
-/** Upload a file to Firebase Storage and return its download URL */
+/** Upload an image to Cloudinary and return its secure URL */
 export async function uploadImage(file: File): Promise<string> {
-  const storageRef = ref(storage, `custom-images/${Date.now()}_${file.name}`)
-  const result = await uploadBytes(storageRef, file)
-  return getDownloadURL(result.ref)
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error?.message || 'Cloudinary upload failed')
+  }
+
+  const data = await res.json()
+  return data.secure_url as string
 }
 
 /** Add a new product to the catalogue */

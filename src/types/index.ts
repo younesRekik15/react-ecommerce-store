@@ -11,8 +11,6 @@ export interface Product {
   availability: Availability
   estimatedProductionTime: string | null
   colors: string[]
-  stitchingPatterns: string[]
-  optionalAccessories: string[]
   printingOptions: boolean
   createdAt: Date
 }
@@ -27,8 +25,6 @@ export interface OrderRequest {
   email: string
   customization: {
     color: string
-    stitchingPattern: string
-    accessories: string[]
     printDesign: string | null
     customImage: string | null
   }
